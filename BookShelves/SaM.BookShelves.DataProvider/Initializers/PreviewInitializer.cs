@@ -33,16 +33,18 @@ namespace SaM.BookShelves.DataProvider.Initializers
                     var flag = false;
                     if (numbers[i].Equals("00"))
                         flag = true;
+
+                    var image = ConfigPreviewInitializer.LoaderPreview.Init(string.Format(template, numbers[1], ConfigPreviewInitializer.Previews.ISBN1, numbers[i], ConfigPreviewInitializer.Previews.Extension));
                     previews.Add(new Preview()
                     {
                         Id = Guid.NewGuid().ToString(),
                         Book = context.Books.First(s => s.Name == ConfigBookInitializer.Books.Book1.Name),
-                        Img = ConfigPreviewInitializer.LoaderPreview.Init(string.Format(template, numbers[1], ConfigPreviewInitializer.Previews.ISBN1, numbers[i], ConfigPreviewInitializer.Previews.Extension)),
+                        Img = image,
                         Name = string.Format(templateName, ConfigPreviewInitializer.Previews.ISBN1, numbers[i]),
                         Extension = ConfigPreviewInitializer.Previews.Extension,
                         Type = ConfigPreviewInitializer.Previews.Type,
                         IsPreview = flag
-                    });
+                    }); ; ;
                 }
                 #endregion
 

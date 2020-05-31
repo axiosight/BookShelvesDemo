@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using SaM.BookShelves.Common.Constants;
 using SaM.BookShelves.DataProvider.Interfaces;
 using SaM.BookShelves.Models.ViewModels;
 using System;
@@ -69,6 +71,7 @@ namespace SaM.BookShelves.DataProvider.Repositories
                                                   {
                                                       Id = pc.Id,
                                                       Img = pc.Img,
+                                                      ImgUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(pc.Img)}",
                                                       IsPreview = pc.IsPreview,
                                                       Type = pc.Type,
                                                       Extension = pc.Extension
@@ -79,8 +82,11 @@ namespace SaM.BookShelves.DataProvider.Repositories
 
         public async Task<IEnumerable<BookViewModel>> GetSearchBooks(string tagSearch, string termSearch)
         {
+            var term = termSearch ?? "";
+            var tagsearch = tagSearch == null || string.Equals(tagSearch, "Empty") ? "" : tagSearch;
+
             var res = (from p in _context.Books
-                       where p.Name.Contains(termSearch)
+                       where p.Name.Contains(term) && p.BookTags.Any(tag => tag.Tag.Name.Contains(tagsearch))
                        select new BookViewModel()
                        {
                            Id = p.Id,
@@ -130,12 +136,59 @@ namespace SaM.BookShelves.DataProvider.Repositories
                                                   {
                                                       Id = pc.Id,
                                                       Img = pc.Img,
+                                                      ImgUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(pc.Img)}",
                                                       IsPreview = pc.IsPreview,
                                                       Type = pc.Type,
                                                       Extension = pc.Extension
                                                   }).FirstOrDefault()
                        }).ToList();
             return res;
+        }
+
+        public void ChangeStatus(string id, string statusId)
+        {
+            _context.BookEntities.Find(id).StatusId = statusId;
+            _context.SaveChanges();
+        }
+
+        public void RentBook(string id, string userId)
+        {
+            _context.BookEntities.Find(id).AppUserId = userId;
+            _context.SaveChanges();
+        }
+
+        public async Task<IEnumerable<BookStatusViewModel>> GetBookStatuses()
+        {
+            var statuses = (from p in _context.Statuses
+                            select new BookStatusViewModel()
+                            {
+                                Id = p.Id,
+                                Name = p.Name
+                            }).ToList();
+            return await Task.FromResult<IEnumerable<BookStatusViewModel>>(statuses);
+        }
+
+        public async Task<IEnumerable<BookedEntityViewModel>> GetBookedEntities()
+        {
+            var entities = (from p in _context.BookEntities
+                            where p.Status.Name == ConfigStatusInitializer.Statuses.Booked 
+                            || p.Status.Name == ConfigStatusInitializer.Statuses.GivenToUser
+                            select new BookedEntityViewModel()
+                            {
+                                Id = p.Id,
+                                AppUserId = p.AppUserId,
+                                UserName = p.AppUser.AppUserName,
+                                Email = p.AppUser.Email,
+                                Mobile = p.AppUser.PhoneNumber,
+                                Floor = p.AppUser.Floor,
+                                Room = p.AppUser.Room,
+                                BookId = p.BookId,
+                                BookName = p.Book.Name,
+                                StatusId = p.StatusId,
+                                StatusName = p.Status.Name
+                            }).ToList();
+
+            return await Task.FromResult<IEnumerable<BookedEntityViewModel>>(entities);
         }
     }
 }

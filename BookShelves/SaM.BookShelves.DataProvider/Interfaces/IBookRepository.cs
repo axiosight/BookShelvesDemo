@@ -11,5 +11,13 @@ namespace SaM.BookShelves.DataProvider.Interfaces
         Task<IEnumerable<BookViewModel>> GetAllBooks();
 
         Task<IEnumerable<BookViewModel>> GetSearchBooks(string tagSearch, string termSearch);
+
+        void ChangeStatus(string id, string statusId);
+
+        void RentBook(string id, string userId);
+
+        Task<IEnumerable<BookStatusViewModel>> GetBookStatuses();
+
+        Task<IEnumerable<BookedEntityViewModel>> GetBookedEntities();
     }
 }

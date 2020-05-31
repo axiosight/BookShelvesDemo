@@ -10,6 +10,8 @@ namespace SaM.BookShelves.Models.ViewModels
 
         public byte[] Img { get; set; }
 
+        public string ImgUrl { get; set; }
+
         public string Name { get; set; }
 
         public string Extension { get; set; }

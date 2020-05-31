@@ -34,5 +34,33 @@ namespace SaM.BookShelves.WebApi.Controllers
 
             return Ok(res);
         }
+
+        [HttpPost("api/book/{id}/status/{statusId}")]
+        public IActionResult ChangeStatus(string id, string statusId)
+        {
+            _bookService.ChangeStatus(id, statusId);
+            return Ok();
+        }
+
+        [HttpPost("api/book/{id}/user/{userId}")]
+        public IActionResult RentBook(string id, string userId)
+        {
+            _bookService.RentBook(id, userId);
+            return Ok();
+        }
+
+        [HttpGet("api/book/statuses")]
+        public async Task<IActionResult> GetBookStatuses()
+        {
+            var statuses = await _bookService.GetBookStatuses();
+            return Ok(statuses);
+        }
+
+        [HttpGet("api/book/booked")]
+        public async Task<IActionResult> GetBookedEntities()
+        {
+            var entities = await _bookService.GetBookedEntities();
+            return Ok(entities);
+        }
     }
 }
